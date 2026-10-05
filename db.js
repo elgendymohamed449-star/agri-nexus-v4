@@ -1,957 +1,246 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Agri Nexus v1.4</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --bg: #F6F2E6;
-      --paper: #EFEAD9;
-      --paper-2: #F7F3E9;
-      --card: #FFFDF9;
-      --ink: #221F16;
-      --muted: #4B463C;
-      --line: #D8CFB4;
-      --olive: #3F4A22;
-      --olive-deep: #2C3418;
-      --gold: #C9A227;
-      --gold-deep: #A9761C;
-      --gold-soft: #F3E2A8;
-      --insect: #A13D2B;
-      --fungi: #33547A;
-      --weed: #2F6B4F;
-      --olive-soft: #E7E9D2;
-      --shadow: rgba(34, 31, 22, 0.12);
-      --danger: #C24A3D;
-      --success: #2D6A4F;
-      --warning: #B07F1C;
-      --radius: 14px;
+const DB = {
+  meta: {
+    version: '1.4',
+    theme: 'v4-classic-cream',
+    title: 'Agri Nexus — Crop Protection Reference Intelligence',
+    last_updated: '2026-10-05',
+    review_mode: true,
+    notes: 'Operational recommendations excluded. Use only as reference and source-review layer.',
+    official_sources: {
+      IRAC: 'https://irac-online.org',
+      FRAC: 'https://www.frac.info',
+      HRAC: 'https://hracglobal.com'
     }
+  },
+  crops: [
+    { key: 'wheat', name: 'Wheat', group: 'Field crops', blurb: 'Major cereal crop.' },
+    { key: 'maize', name: 'Maize', group: 'Field crops', blurb: 'High-value crop with broad weed pressure.' },
+    { key: 'tomato', name: 'Tomato', group: 'Vegetables', blurb: 'High-value vegetable with fungal pressure.' },
+    { key: 'cotton', name: 'Cotton', group: 'Field crops', blurb: 'Major row crop with insect and weed pressure.' }
+  ],
+  pests: [
+    {
+      id: 'p1', common: 'Cotton bollworm', scientific: 'Helicoverpa armigera', order: 'Lepidoptera', arabic: 'دودة اللوز', family: 'Noctuidae',
+      hosts: 'Cotton, maize, tomato', target_site_group: 'Nervous system',
+      irac_groups: ['3A', '28'], chemical_control_status: 'Reference only',
+      definition: 'Polyphagous lepidopteran pest of many field crops.',
+      damage: 'Larvae feed on fruiting structures and foliage; heavily damaged crops show abortion, holes and reduced yield.',
+      lifecycle: 'Eggs on plant tissues; larval stage responsible for crop damage; pupation in soil or crop debris.',
+      conditions: 'Warm conditions favor rapid development and high population growth.',
+      monitoring: 'Scouting at threshold windows during flowering and fruiting.',
+      irac_relationships: [
+        { group_id: 'g3a', relationship_type: 'taxonomic_reference', evidence_level: 'Reference', confidence: 'Medium' },
+        { group_id: 'g28', relationship_type: 'taxonomic_reference', evidence_level: 'Reference', confidence: 'Medium' }
+      ]
+    },
+    {
+      id: 'p2', common: 'Whitefly', scientific: 'Bemisia tabaci', order: 'Hemiptera', arabic: 'الذبابة البيضاء', family: 'Aleyrodidae',
+      hosts: 'Cotton, tomato, cucurbits', target_site_group: 'Nervous system',
+      irac_groups: ['4A', '6'], chemical_control_status: 'Reference only',
+      definition: 'Sucking hemipteran pest attacking foliage and fruiting structures.',
+      damage: 'Sap feeding leads to chlorosis, honeydew and sooty mold, especially on young growth.',
+      lifecycle: 'Eggs on underside of leaves; nymphs and adults feed together; several overlapping generations possible.',
+      conditions: 'High humidity and warm conditions favor outbreaks.',
+      monitoring: 'Inspect undersides of leaves; check sticky honeydew and winged adults.',
+      irac_relationships: [
+        { group_id: 'g4a', relationship_type: 'taxonomic_reference', evidence_level: 'Reference', confidence: 'Medium' },
+        { group_id: 'g6', relationship_type: 'taxonomic_reference', evidence_level: 'Reference', confidence: 'Medium' }
+      ]
+    },
+    {
+      id: 'p3', common: 'Thrips', scientific: 'Thrips tabaci', order: 'Thysanoptera', arabic: 'التربس', family: 'Thripidae',
+      hosts: 'Onion, cotton, tomato', target_site_group: 'Nervous system',
+      irac_groups: ['3A'], chemical_control_status: 'Reference only',
+      definition: 'Minute piercing-sucking insects that aggregate on tender tissue.',
+      damage: 'Feeding causes silvery scars, distorted growth and flower damage.',
+      lifecycle: 'Eggs in plant tissue; larvae and adults feed on soft tissues; generations overlap fast under warm conditions.',
+      conditions: 'Warm, dry to moderate conditions commonly favor thrips buildup.',
+      monitoring: 'Use flower or foliage checks; inspect new growth and blossoms.',
+      irac_relationships: [{ group_id: 'g3a', relationship_type: 'taxonomic_reference', evidence_level: 'Reference', confidence: 'Medium' }]
+    },
+    {
+      id: 'p4', common: 'Aphids', scientific: 'Aphis spp.', order: 'Hemiptera', arabic: 'منّ', family: 'Aphididae',
+      hosts: 'Wheat, cotton, tomato', target_site_group: 'Nervous system',
+      irac_groups: ['4A', '3A'], chemical_control_status: 'Reference only',
+      definition: 'Soft-bodied sap-feeding insects with rapid population increase.',
+      damage: 'Distorts new growth, transmits viruses and causes honeydew accumulation.',
+      lifecycle: 'Parthenogenetic cycles can be rapid; alates appear under stress or crowding.',
+      conditions: 'Mild and favorable conditions commonly sustain aphid outbreaks.',
+      monitoring: 'Inspect shoot tips and undersides of leaves; check for colonies and natural enemies.',
+      irac_relationships: [{ group_id: 'g4a', relationship_type: 'taxonomic_reference', evidence_level: 'Reference', confidence: 'Medium' }]
+    },
+    {
+      id: 'p5', common: 'Cutworms', scientific: 'Agrotis spp.', order: 'Lepidoptera', arabic: 'الديدان القارضة', family: 'Noctuidae',
+      hosts: 'Maize, wheat, tomato', target_site_group: 'Nervous system',
+      irac_groups: ['28', '1A'], chemical_control_status: 'Reference only',
+      definition: 'Nocturnal larvae that cut young stems near the soil line.',
+      damage: 'Seedlings are severed at the base, causing stand loss.',
+      lifecycle: 'Eggs on soil or plant bases; larvae feed at night; pupate in soil.',
+      conditions: 'Moist soil and dense early growth encourage activity.',
+      monitoring: 'Check for cut stems, larval presence in soil and damaged patches.',
+      irac_relationships: [{ group_id: 'g28', relationship_type: 'taxonomic_reference', evidence_level: 'Reference', confidence: 'Medium' }]
+    }
+  ],
+  diseases: [
+    {
+      id: 'd1', name: 'Early blight', pathogen: 'Alternaria solani', pathogen_type: 'Fungal', taxon_group: 'Fungal', host_crops: ['tomato'],
+      aliases: ['Alternaria leaf blight'], family: 'Pleosporaceae',
+      quickref_group: 'FRAC 7 / M5 / 3', chemical_control_status: 'Reference mapping only',
+      symptoms: ['Dark brown lesions with concentric rings', 'Leaf chlorosis and defoliation', 'Fruit lesions can develop under severe pressure'],
+      signs: ['Brown to olive conidia on leaf lesions', 'Dark mycelial growth under humid conditions'],
+      disease_cycle: 'Conidia produced on infected tissue spread via splashing and wind under humid conditions.',
+      infection_conditions: 'Humid, warm weather favors infection and rapid lesion development.',
+      classification: 'Leaf and fruit disease with foliar blight symptoms.',
+      frac_relationships: [
+        { active_id: 'ai13', group_ids: ['gfr7'], relationship_type: 'general_reference', evidence_level: 'Reference', confidence: 'Medium' },
+        { active_id: 'ai17', group_ids: ['gfr11'], relationship_type: 'general_reference', evidence_level: 'Reference', confidence: 'Medium' }
+      ],
+      frac_actives_ref: ['ai13', 'ai17'],
+      taxonomy: { cell_wall: 'Septate hyphae', asexual: 'Conidia', sexual: 'Not recorded in source' }
+    },
+    {
+      id: 'd2', name: 'Powdery mildew', pathogen: 'Erysiphe spp.', pathogen_type: 'Fungal', taxon_group: 'Fungal', host_crops: ['wheat', 'tomato'],
+      aliases: ['Powdery mildew disease'], family: 'Erysiphaceae',
+      quickref_group: 'FRAC 3 / 13 / U6', chemical_control_status: 'Reference mapping only',
+      symptoms: ['White powdery colonies on leaves', 'Leaf curling and reduced photosynthesis', 'Reduced green leaf area leads to lower growth'],
+      signs: ['Mycelium and conidia on leaf surface', 'Visible white fungal growth on upper leaf surfaces'],
+      disease_cycle: 'Conidia establish on the host surface and colonize epidermal tissue under favorable conditions.',
+      infection_conditions: 'Moderate temperatures with low humidity on leaf surfaces favor infection.',
+      classification: 'Obligate biotrophic foliar disease with characteristic powdery growth.',
+      frac_relationships: [
+        { active_id: 'ai7', group_ids: ['gfr3'], relationship_type: 'general_reference', evidence_level: 'Reference', confidence: 'Medium' },
+        { active_id: 'ai10', group_ids: ['gfr13'], relationship_type: 'general_reference', evidence_level: 'Reference', confidence: 'Medium' }
+      ],
+      frac_actives_ref: ['ai7', 'ai10'],
+      taxonomy: { cell_wall: 'Septate hyphae', asexual: 'Conidia', sexual: 'Chasmothecia' }
+    },
+    {
+      id: 'd3', name: 'Rust', pathogen: 'Puccinia spp.', pathogen_type: 'Fungal', taxon_group: 'Fungal', host_crops: ['wheat'],
+      aliases: ['Cereal rust'], family: 'Pucciniaceae',
+      quickref_group: 'FRAC 3 / 11 / U', chemical_control_status: 'Reference mapping only',
+      symptoms: ['Orange or brown pustules on leaves and stems', 'Chlorosis preceding pustule formation', 'Leaf senescence under severe infection'],
+      signs: ['Urediniospores or pustules on leaf tissue'],
+      disease_cycle: 'Rust fungi reproduce repeatedly on living host tissue and rely on environmental conditions for spore dispersal.',
+      infection_conditions: 'Leaf wetness and moderate temperatures can favor uredinia development.',
+      classification: 'Foliar rust disease of cereals and some vegetable hosts.',
+      frac_relationships: [],
+      frac_actives_ref: []
+    },
+    {
+      id: 'd4', name: 'Damping-off', pathogen: 'Pythium spp.', pathogen_type: 'Oomycete', taxon_group: 'Fungal-like', host_crops: ['tomato', 'maize'],
+      aliases: ['Seedling blight'], family: 'Pythiaceae',
+      quickref_group: 'FRAC 4 / 28 / M', chemical_control_status: 'Reference mapping only',
+      symptoms: ['Seedling collapse at the soil line', 'Water-soaked stems and wilting', 'Poor stand emergence'],
+      signs: ['Cottony growth on stems and nearby soil', 'White mycelial growth in wet media'],
+      disease_cycle: 'Zoospores infect seedling tissues under wet conditions, then spread via water movement.',
+      infection_conditions: 'Wet soils, low oxygen and cool to moderate temperatures favor infection.',
+      classification: 'Soil-borne seedling disease affecting emergence and stand establishment.',
+      frac_relationships: [],
+      frac_actives_ref: []
+    }
+  ],
+  weed_named: [
+    { crop: 'wheat', section: 'Grassy weeds', names: ['Wild oat', 'Avena fatua', 'شبت', 'أبو ركبة'] },
+    { crop: 'wheat', section: 'Broadleaf weeds', names: ['Lambsquarters', 'Chenopodium album', 'دنيبة'] },
+    { crop: 'maize', section: 'Grassy weeds', names: ['Barnyard grass', 'Echinochloa crus-galli', 'عجيرة'] },
+    { crop: 'maize', section: 'Broadleaf weeds', names: ['Prickly lettuce', 'Lactuca serriola'] }
+  ],
+  weed_options: [
+    {
+      crop: 'wheat', weed_type: 'Grassy weeds', trade: 'Broadway Star', section: 'Cereal weed control', target_weeds: ['Wild oat', 'Barnyard grass'],
+      actives_text: 'Mesotrione + metolachlor', active_ids: ['ai1'], hrac: [2, 15],
+      application: { timing: 'Post-emergence after crop establishment', rate: '1.5', unit: 'L/feddan' },
+      evidence_level: 'Reference', confidence: 'Medium', registration_status: 'Unknown',
+      application_method: 'Foliar spray', water_management: 'Use clean water', conditions: 'Warm, moderately humid periods'
+    },
+    {
+      crop: 'maize', weed_type: 'Broadleaf weeds', trade: 'Frontier', section: 'Maize key weeds', target_weeds: ['Lambsquarters'],
+      actives_text: 'Atrazine + S-metolachlor', active_ids: ['ai2'], hrac: [5, 15],
+      application: { timing: 'Pre- and post-emergence', rate: '1.2', unit: 'L/feddan' },
+      evidence_level: 'Reference', confidence: 'Medium', registration_status: 'Unknown',
+      application_method: 'Soil or foliar', water_management: 'Adequate coverage', conditions: 'Field conditions'
+    },
+    {
+      crop: 'maize', weed_type: 'Grassy weeds', trade: 'Dual Gold', section: 'Maize pre-emergence', target_weeds: ['Barnyard grass'],
+      actives_text: 'S-metolachlor', active_ids: ['ai15'], hrac: [15],
+      application: { timing: 'Pre-emergence', rate: '1.0', unit: 'L/feddan' },
+      evidence_level: 'Reference', confidence: 'Medium', registration_status: 'Unknown',
+      application_method: 'Soil application', water_management: 'Good soil distribution', conditions: 'Moist seedbed' 
+    }
+  ],
+  actives: [
+    { id: 'ai1', name: 'Mesotrione', record_type: 'Reference', usage_scope: 'Reference', uses: ['herbicide'],
+      groups: [{ system: 'HRAC', code: '27', name: 'HPPD inhibitors', moa: 'Inhibits 4-hydroxyphenylpyruvate dioxygenase' }],
+      pests: [], diseases: [], weed_crops: ['wheat', 'maize'], evidence_level: 'Reference', registration_status: 'Unknown', classification_status: 'Classified' },
+    { id: 'ai2', name: 'Atrazine', record_type: 'Reference', usage_scope: 'Reference', uses: ['herbicide'],
+      groups: [{ system: 'HRAC', code: '5', name: 'Photosystem II inhibitors', moa: 'Disrupts photosystem II' }],
+      pests: [], diseases: [], weed_crops: ['maize'], evidence_level: 'Reference', registration_status: 'Unknown', classification_status: 'Classified' },
+    { id: 'ai3', name: 'Bifenthrin', record_type: 'Reference', usage_scope: 'Reference', uses: ['insecticide'],
+      groups: [{ system: 'IRAC', code: '3A', name: 'Pyrethroids', moa: 'Sodium channel modulators' }], pests: ['p1', 'p3'], diseases: [], weed_crops: [], evidence_level: 'Reference', registration_status: 'Unknown', classification_status: 'Classified' },
+    { id: 'ai4', name: 'Spirotetramat', record_type: 'Reference', usage_scope: 'Reference', uses: ['insecticide'],
+      groups: [{ system: 'IRAC', code: '23', name: 'Lipid synthesis inhibitors', moa: 'Inhibits acetyl-CoA carboxylase' }], pests: ['p2'], diseases: [], weed_crops: [], evidence_level: 'Reference', registration_status: 'Unknown', classification_status: 'Classified' },
+    { id: 'ai5', name: 'Azoxystrobin', record_type: 'Reference', usage_scope: 'Reference', uses: ['fungicide'],
+      groups: [{ system: 'FRAC', code: '11', name: 'QoI', moa: 'Inhibits mitochondrial respiration' }], pests: [], diseases: ['d1', 'd2'], weed_crops: [], evidence_level: 'Reference', registration_status: 'Unknown', classification_status: 'Classified' },
+    { id: 'ai6', name: 'Difenoconazole', record_type: 'Reference', usage_scope: 'Reference', uses: ['fungicide'],
+      groups: [{ system: 'FRAC', code: '3', name: 'DMI', moa: 'Sterol demethylation inhibitor' }], pests: [], diseases: ['d2'], weed_crops: [], evidence_level: 'Reference', registration_status: 'Unknown', classification_status: 'Classified' },
+    { id: 'ai7', name: 'Tebuconazole', record_type: 'Reference', usage_scope: 'Reference', uses: ['fungicide'],
+      groups: [{ system: 'FRAC', code: '3', name: 'DMI', moa: 'Sterol demethylation inhibitor' }], pests: [], diseases: ['d2'], weed_crops: [], evidence_level: 'Reference', registration_status: 'Unknown', classification_status: 'Classified' },
+    { id: 'ai8', name: 'Mancozeb', record_type: 'Reference', usage_scope: 'Reference', uses: ['fungicide'],
+      groups: [{ system: 'FRAC', code: 'M3', name: 'Dithiocarbamates', moa: 'Multi-site contact' }], pests: [], diseases: ['d1'], weed_crops: [], evidence_level: 'Reference', registration_status: 'Unknown', classification_status: 'Classified' },
+    { id: 'ai9', name: 'Propamocarb', record_type: 'Reference', usage_scope: 'Reference', uses: ['fungicide'],
+      groups: [{ system: 'FRAC', code: '28', name: 'Carbamates', moa: 'Inhibits cell wall synthesis' }], pests: [], diseases: ['d1'], weed_crops: [], evidence_level: 'Reference', registration_status: 'Unknown', classification_status: 'Classified' },
+    { id: 'ai10', name: 'Sulfur', record_type: 'Reference', usage_scope: 'Reference', uses: ['fungicide'],
+      groups: [{ system: 'FRAC', code: 'M2', name: 'Inorganic', moa: 'Multi-site contact' }], pests: [], diseases: ['d2'], weed_crops: [], evidence_level: 'Reference', registration_status: 'Unknown', classification_status: 'Classified' },
+    { id: 'ai11', name: 'Clofentezine', record_type: 'Reference', usage_scope: 'Reference', uses: ['acaricide'],
+      groups: [{ system: 'IRAC', code: '10A', name: 'Mite growth inhibitors', moa: 'Mite growth regulator' }], pests: ['p3'], diseases: [], weed_crops: [], evidence_level: 'Reference', registration_status: 'Unknown', classification_status: 'Classified' },
+    { id: 'ai12', name: 'Acetamiprid', record_type: 'Reference', usage_scope: 'Reference', uses: ['insecticide'],
+      groups: [{ system: 'IRAC', code: '4A', name: 'Neonicotinoids', moa: 'Nicotinic acetylcholine receptor competitive modulators' }], pests: ['p2'], diseases: [], weed_crops: [], evidence_level: 'Reference', registration_status: 'Unknown', classification_status: 'Classified' },
+    { id: 'ai13', name: 'Chlorothalonil', record_type: 'Reference', usage_scope: 'Reference', uses: ['fungicide'],
+      groups: [{ system: 'FRAC', code: 'M5', name: 'Chloronitriles', moa: 'Multi-site contact' }], pests: [], diseases: ['d1'], weed_crops: [], evidence_level: 'Reference', registration_status: 'Unknown', classification_status: 'Classified' },
+    { id: 'ai14', name: 'Fluopicolide', record_type: 'Reference', usage_scope: 'Reference', uses: ['fungicide'],
+      groups: [{ system: 'FRAC', code: '43', name: 'QiI', moa: 'Inhibits cellulose synthesis' }], pests: [], diseases: ['d1'], weed_crops: [], evidence_level: 'Reference', registration_status: 'Unknown', classification_status: 'Classified' },
+    { id: 'ai15', name: 'Metolachlor', record_type: 'Reference', usage_scope: 'Reference', uses: ['herbicide'],
+      groups: [{ system: 'HRAC', code: '15', name: 'Very long chain fatty acid inhibitors', moa: 'Inhibits VLCFA synthesis' }], pests: [], diseases: [], weed_crops: ['wheat', 'maize'], evidence_level: 'Reference', registration_status: 'Unknown', classification_status: 'Classified' },
+    { id: 'ai16', name: 'Fenoxaprop-p-ethyl', record_type: 'Reference', usage_scope: 'Reference', uses: ['herbicide'],
+      groups: [{ system: 'HRAC', code: '1', name: 'ACCase inhibitors', moa: 'Inhibits acetyl-CoA carboxylase' }], pests: [], diseases: [], weed_crops: ['wheat'], evidence_level: 'Reference', registration_status: 'Unknown', classification_status: 'Classified' },
+    { id: 'ai17', name: 'Azoxystrobin', record_type: 'Reference', usage_scope: 'Reference', uses: ['fungicide'],
+      groups: [{ system: 'FRAC', code: '11', name: 'QoI', moa: 'Mitochondrial respiration inhibitor' }], pests: [], diseases: ['d1'], weed_crops: [], evidence_level: 'Reference', registration_status: 'Unknown', classification_status: 'Classified' }
+  ],
+  groups: [
+    { id: 'g3a', system: 'IRAC', code: '3A', name: 'Pyrethroids', moa: 'Sodium channel modulators', category: 'Nervous system', kind: 'Insecticide', resistance_risk: 'Medium', resistance: 'Resistance common where repeated exposure occurs.', ambiguous_code: false },
+    { id: 'g4a', system: 'IRAC', code: '4A', name: 'Neonicotinoids', moa: 'Nicotinic acetylcholine receptor modulators', category: 'Nervous system', kind: 'Insecticide', resistance_risk: 'Medium', resistance: 'Resistance reported in several sucking pests.', ambiguous_code: false },
+    { id: 'g28', system: 'IRAC', code: '28', name: 'Diamides', moa: 'RyR modulators', category: 'Energy production', kind: 'Insecticide', resistance_risk: 'Medium', resistance: 'Resistance risk is moderate depending on use patterns.', ambiguous_code: false },
+    { id: 'gfr3', system: 'FRAC', code: '3', name: 'DMI fungicides', moa: 'Sterol demethylation inhibitor', category: 'Cell membrane', kind: 'Fungicide', resistance_risk: 'High', resistance: 'High risk of site-specific resistance.', ambiguous_code: false },
+    { id: 'gfr7', system: 'FRAC', code: '7', name: 'SDHI fungicides', moa: 'Succinate dehydrogenase inhibition', category: 'Energy production', kind: 'Fungicide', resistance_risk: 'High', resistance: 'Resistance can develop rapidly when used alone.', ambiguous_code: false },
+    { id: 'gfr11', system: 'FRAC', code: '11', name: 'QoI fungicides', moa: 'Mitochondrial respiration inhibitors', category: 'Energy production', kind: 'Fungicide', resistance_risk: 'High', resistance: 'Resistance can develop rapidly.', ambiguous_code: false },
+    { id: 'ghrac2', system: 'HRAC', code: '2', name: 'ALS inhibitors', moa: 'Acetolactate synthase inhibition', category: 'Amino acid synthesis', kind: 'Herbicide', resistance_risk: 'High', resistance: 'Resistance is a major concern in annual weeds.', ambiguous_code: false },
+    { id: 'ghrac5', system: 'HRAC', code: '5', name: 'Photosystem II inhibitors', moa: 'Photosystem II inhibition', category: 'Photosynthesis', kind: 'Herbicide', resistance_risk: 'Medium', resistance: 'Resistance is variable and field-dependent.', ambiguous_code: false },
+    { id: 'ghrac15', system: 'HRAC', code: '15', name: 'Very long chain fatty acid inhibitors', moa: 'VLCFA synthesis inhibitor', category: 'Cell division', kind: 'Herbicide', resistance_risk: 'Medium', resistance: 'Resistance less common but possible.', ambiguous_code: false },
+    { id: 'ghrac27', system: 'HRAC', code: '27', name: 'HPPD inhibitors', moa: 'HPPD inhibition', category: 'Pigment synthesis', kind: 'Herbicide', resistance_risk: 'Medium', resistance: 'Species-specific risk pattern.', ambiguous_code: false }
+  ],
+  resistance: {
+    irac: {
+      practice: ['Rotate MoA groups across successive generations.', 'Do not repeat the same IRAC group in the same crop season.', 'Use monitoring data to time interventions.'],
+      why: ['Repeated exposure selects resistant individuals.', 'Cross-resistance can reduce the value of related chemistry.', 'Resistance risk increases when the same target site is used repeatedly.']
+    },
+    frac: {
+      practices: ['Avoid consecutive applications of the same FRAC group.', 'Use mixture or alternation only when supported by field evidence.', 'Prioritize disease monitoring and cultural controls.'],
+      note: 'FRAC resistance management is especially important for single-site fungicides.'
+    },
+    hrac: {
+      practices: ['Rotate HRAC groups across seasons.', 'Avoid repeated use of the same site-of-action.', 'Use diversified weed control to reduce selection pressure.'],
+      concentration: [
+        { crop: 'Wheat', groups: 'Group 2 + Group 15', observation: 'Repeated selective pressure is common in cereal systems.' },
+        { crop: 'Maize', groups: 'Group 5 + Group 15', observation: 'Rotation across site-of-action is recommended for broad-spectrum programs.' }
+      ]
+    }
+  },
+  filters: {
+    insect_mode: ['Nervous system', 'Energy production', 'Growth regulation'],
+    disease_effective: ['Effective / likely effective', 'Partially effective', 'Not confirmed'],
+    weed_grouping: ['Grassy weeds', 'Broadleaf weeds']
+  }
+};
 
-    * { box-sizing: border-box; }
-    html, body { margin: 0; height: 100%; }
-    body {
-      font-family: 'IBM Plex Sans', 'Segoe UI', sans-serif;
-      background: linear-gradient(180deg, var(--paper) 0%, var(--bg) 100%);
-      color: var(--ink);
-      line-height: 1.5;
-    }
-    a { color: inherit; }
-    h1, h2, h3, h4 { margin: 0; font-family: 'Fraunces', 'Georgia', serif; letter-spacing: -0.02em; }
-    h1 { font-size: clamp(22px, 2.2vw, 36px); }
-    h2 { font-size: clamp(18px, 1.7vw, 24px); }
-    h3 { font-size: 20px; }
-    p { margin: 0; }
-    code { font-family: 'IBM Plex Sans', monospace; }
-
-    .app-shell {
-      display: flex;
-      min-height: 100vh;
-    }
-
-    nav {
-      width: 240px;
-      background: linear-gradient(180deg, var(--olive-deep) 0%, var(--olive) 100%);
-      color: #F2EBDD;
-      padding: 18px 14px 16px;
-      position: sticky;
-      top: 0;
-      height: 100vh;
-      overflow-y: auto;
-      box-shadow: inset -1px 0 0 rgba(255,255,255,0.06);
-    }
-
-    .brand {
-      padding: 6px 10px 16px;
-      border-bottom: 1px solid rgba(255,255,255,0.16);
-      margin-bottom: 10px;
-    }
-    .brand strong {
-      display: block;
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 22px;
-      color: #fff;
-      letter-spacing: -0.04em;
-    }
-    .brand span {
-      font-size: 10px;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      opacity: 0.72;
-      display: block;
-      margin-top: 6px;
-    }
-
-    .nav-link {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      text-decoration: none;
-      color: #F3EBDD;
-      padding: 10px 12px;
-      border-radius: 10px;
-      margin: 3px 0;
-      font-size: 14px;
-      transition: 0.2s ease;
-      border: 1px solid transparent;
-    }
-    .nav-link:hover,
-    .nav-link.active {
-      background: rgba(255,255,255,0.08);
-      border-color: rgba(201,162,39,0.7);
-      box-shadow: inset 3px 0 0 var(--gold);
-    }
-    .nav-link svg {
-      width: 16px; height: 16px;
-      stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
-      opacity: 0.9;
-    }
-    .nav-footer {
-      margin-top: 18px;
-      padding: 10px 10px 0;
-      color: rgba(255,255,255,0.66);
-      font-size: 11px;
-      line-height: 1.5;
-      border-top: 1px solid rgba(255,255,255,0.12);
-    }
-
-    .main {
-      flex: 1;
-      padding: 22px 28px 52px;
-      overflow: auto;
-    }
-    .wrap {
-      max-width: 1180px;
-      margin: 0 auto;
-    }
-
-    .topbar {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      margin-bottom: 20px;
-      position: sticky;
-      top: 0;
-      z-index: 8;
-      background: rgba(246,242,230,0.9);
-      backdrop-filter: blur(8px);
-      padding: 6px 0 12px;
-      border-bottom: 1px solid rgba(60, 73, 42, 0.08);
-    }
-    .title-cluster { display: flex; align-items: center; gap: 12px; flex: 1; }
-    .title-cluster h1 { color: var(--olive-deep); }
-    .search-wrap { position: relative; flex: 1; max-width: 620px; }
-    .search-wrap input {
-      width: 100%; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--line); background: rgba(255,255,255,0.85); color: var(--ink);
-      font-size: 14px; box-shadow: 0 1px 0 rgba(0,0,0,0.02);
-    }
-    .search-wrap input:focus { outline: 2px solid rgba(201,162,39,0.22); border-color: var(--gold-deep); }
-    .search-suggestions {
-      position: absolute; left: 0; right: 0; top: calc(100% + 8px); background: var(--card); border: 1px solid var(--line); border-radius: 14px;
-      box-shadow: 0 18px 40px rgba(34,31,22,0.12); overflow: hidden; display: none; z-index: 10;
-    }
-    .search-suggestions.show { display: block; }
-    .suggestion-item {
-      padding: 10px 12px; cursor: pointer; border-bottom: 1px solid rgba(60,73,42,0.08); display: flex; justify-content: space-between; gap: 12px;
-      font-size: 13px;
-    }
-    .suggestion-item:last-child { border-bottom: none; }
-    .suggestion-item:hover { background: #F6F3EA; }
-    .suggestion-item b { color: var(--olive-deep); }
-    .suggestion-kind { color: var(--muted); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; }
-
-    .btn {
-      background: var(--card); color: var(--olive-deep); border: 1px solid var(--line); border-radius: 10px; padding: 9px 14px; cursor:pointer; font: inherit; font-weight: 600;
-      transition: 0.2s ease;
-    }
-    .btn:hover { border-color: var(--gold-deep); background: #FFF9EF; }
-    .btn.primary {
-      background: linear-gradient(135deg, var(--olive) 0%, var(--olive-deep) 100%); color: #fff; border-color: var(--olive);
-    }
-    .btn.gold { background: linear-gradient(135deg, var(--gold) 0%, var(--gold-deep) 100%); border-color: var(--gold); color: #fff; }
-    .btn.ghost { background: transparent; }
-
-    .hero {
-      background: linear-gradient(135deg, var(--olive-deep) 0%, var(--olive) 36%, var(--gold-deep) 100%);
-      color: #fff;
-      border-radius: 18px;
-      padding: 22px 26px;
-      box-shadow: 0 18px 30px rgba(44,52,24,0.18);
-    }
-    .hero h2 { font-size: clamp(22px, 2vw, 28px); margin-bottom: 6px; }
-    .hero p { color: rgba(255,255,255,0.88); }
-    .hero-kbd {
-      background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.18); border-radius: 6px; padding: 1px 7px; font-weight: 700;
-    }
-
-    .stats-grid {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin: 18px 0 24px;
-    }
-    .stat-card {
-      background: var(--card); border: 1px solid var(--line); border-left: 4px solid var(--gold); border-radius: var(--radius); padding: 16px 18px; box-shadow: 0 6px 16px rgba(32,32,32,0.03);
-      cursor: pointer; transition: transform 0.12s ease, border-color 0.12s ease;
-    }
-    .stat-card:hover { transform: translateY(-1px); border-color: var(--olive); }
-    .stat-card strong { display:block; font-family:'Space Grotesk',sans-serif; font-size: 28px; color: var(--olive-deep); }
-    .stat-card span { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
-
-    .section-header { margin: 20px 0 10px; color: var(--olive-deep); display:flex; justify-content:space-between; align-items:center; }
-    .section-header .right { color: var(--muted); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; }
-
-    .grid { display: grid; gap: 16px; }
-    .grid.condensed { gap: 12px; }
-    .g3 { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
-    .g4 { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
-    .g2 { grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); }
-
-    .card {
-      background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px 18px;
-      box-shadow: 0 10px 18px rgba(34,31,22,0.02);
-    }
-    .card.section { border-top: 4px solid var(--olive); }
-    .card.insect { border-top-color: var(--insect); }
-    .card.fungi { border-top-color: var(--fungi); }
-    .card.weed { border-top-color: var(--weed); }
-    .card.gold { border-top-color: var(--gold); }
-    .card h3 { margin-bottom: 6px; }
-
-    .pill {
-      display:inline-block; padding: 3px 9px; border-radius: 999px; font-weight: 700; font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; border: 1px solid transparent;
-      white-space: nowrap; margin: 2px 6px 2px 0;
-    }
-    .pill.olive { background: var(--olive-soft); border-color: rgba(63,74,34,0.12); color: var(--olive-deep); }
-    .pill.gold { background: var(--gold-soft); border-color: rgba(201,162,39,0.2); color: var(--gold-deep); }
-    .pill.insect { background: rgba(161,61,43,0.08); color: var(--insect); border-color: rgba(161,61,43,0.12); }
-    .pill.fungi { background: rgba(51,84,122,0.08); color: var(--fungi); border-color: rgba(51,84,122,0.12); }
-    .pill.weed { background: rgba(47,107,79,0.08); color: var(--weed); border-color: rgba(47,107,79,0.12); }
-    .pill.review {
-      background: #fff3d7; color: #875d00; border-color: rgba(201,162,39,0.35);
-    }
-
-    .filter-row {
-      display: flex; flex-wrap: wrap; gap: 10px; align-items: end; margin: 12px 0 18px;
-    }
-    .filter-box { display:flex; flex-direction:column; gap:6px; min-width: 170px; }
-    .filter-box label { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
-    .filter-box select, .filter-box input {
-      border: 1px solid var(--line); background: rgba(255,255,255,0.9); border-radius: 10px; padding: 9px 10px; color: var(--ink); font: inherit; min-width: 0;
-    }
-    .filter-box input:focus, .filter-box select:focus { outline: 2px solid rgba(201,162,39,0.2); border-color: var(--gold-deep); }
-
-    .list { display: grid; gap: 0; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; background: rgba(255,255,255,0.66); }
-    .row {
-      display: grid; gap: 10px; grid-template-columns: 1.5fr 1fr 1.3fr; align-items: center; padding: 12px 14px; border-bottom: 1px solid var(--line); background: rgba(255,255,255,0.35);
-      cursor: pointer; transition: background 0.14s ease;
-    }
-    .row:hover { background: rgba(243,226,168,0.28); }
-    .row:last-child { border-bottom: none; }
-    .row small { color: var(--muted); }
-    .row b { display:block; font-size: 15px; }
-
-    .summary-card {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 18px 0 20px;
-    }
-    .summary-item {
-      background: linear-gradient(180deg, #FFFDF8, #F7F0DB); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px;
-    }
-    .summary-item strong { display:block; font-family:'Space Grotesk',sans-serif; font-size: 20px; color: var(--olive-deep); }
-    .summary-item span { font-size: 12px; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; }
-
-    dl.kv {
-      display: grid; grid-template-columns: 200px minmax(0,1fr); gap: 10px 16px; align-items: start; margin: 0;
-    }
-    dl.kv dt {
-      font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); padding-top: 5px;
-    }
-    dl.kv dd { margin: 0; color: var(--ink); }
-
-    .empty-bucket {
-      background: linear-gradient(180deg, #FFFDF7, #F6F0DF); border: 1px dashed rgba(201,162,39,0.7); color: var(--muted); border-radius: 12px; padding: 12px 14px; margin-top: 10px;
-      display: none;
-    }
-    .empty-bucket.show { display: block; }
-    .empty-bucket .toggle { display:inline-block; margin-top:8px; }
-
-    .tabs {
-      display:flex; flex-wrap:wrap; gap: 8px; margin: 14px 0 16px;
-    }
-    .tab {
-      padding: 8px 12px; border-radius: 999px; cursor:pointer; border: 1px solid var(--line); background: transparent; color: var(--muted); font: inherit; font-weight: 600;
-    }
-    .tab.active { background: var(--olive); border-color: var(--olive); color: #fff; }
-
-    .study-grid {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px;
-    }
-    .study-card {
-      background: linear-gradient(180deg, #fff, #f9f5ec); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; position: relative;
-    }
-    .study-card h4 { font-size: 17px; margin-bottom: 8px; }
-    .study-card .meta { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; }
-    .note-toggle {
-      position: absolute; top: 10px; right: 10px; border: 1px solid var(--line); background: #fff; border-radius: 8px; padding: 4px 8px; cursor:pointer; font-size: 12px;
-    }
-    textarea.note-box {
-      width: 100%; min-height: 82px; resize: vertical; border-radius: 10px; border: 1px solid var(--line); padding: 10px 12px; font: inherit; margin-top: 10px;
-    }
-
-    .compare-box {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px;
-    }
-    .compare-item {
-      background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 12px;
-    }
-    .compare-row { display:flex; justify-content:space-between; gap:10px; padding: 6px 0; border-bottom: 1px dashed var(--line); }
-    .compare-row:last-child { border-bottom: none; }
-
-    .breadcrumb {
-      display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; margin: 8px 0 16px;
-    }
-    .breadcrumb a { color: var(--olive-deep); text-decoration: none; }
-
-    .flag {
-      display:inline-block; background: #FFF3D8; border: 1px solid rgba(201,162,39,0.25); color: #855b00; border-radius: 999px; padding: 3px 8px; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; margin: 0 4px 4px 0;
-    }
-    .flag.review { background: #fff7e6; border-color: rgba(169,118,28,0.25); color: #7b5910; }
-
-    .action-row { display:flex; gap: 8px; flex-wrap:wrap; margin-top: 12px; }
-
-    .alpha-index {
-      display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 12px;
-    }
-    .alpha-index button {
-      border: 1px solid var(--line); background: #fff; border-radius: 10px; padding: 6px 8px; min-width: 30px; font: inherit; cursor:pointer;
-    }
-    .alpha-index button.active { background: var(--olive); color: white; border-color: var(--olive); }
-
-    @media (max-width: 900px) {
-      .app-shell { display: block; }
-      nav {
-        width: 100%; height: auto; position: static; padding-bottom: 12px;
-      }
-      .main { padding: 16px 16px 32px; }
-      .topbar { flex-direction: column; align-items: stretch; }
-      .title-cluster { width: 100%; }
-      .search-wrap { max-width: none; }
-      .row { grid-template-columns: 1fr; }
-      dl.kv { grid-template-columns: 1fr; }
-    }
-
-    @media print {
-      nav, .topbar, .filter-row, .action-row, .tabs, .empty-bucket { display: none !important; }
-      body { background: white; }
-      .main { padding: 0; }
-      .card, .summary-item, .study-card, .compare-item { box-shadow: none; }
-      .hero { break-inside: avoid; }
-    }
-  </style>
-</head>
-<body>
-  <div class="app-shell">
-    <nav>
-      <div class="brand">
-        <strong>Agri Nexus</strong>
-        <span>Crop protection reference</span>
-      </div>
-      <a class="nav-link active" href="#dashboard"><svg viewBox="0 0 24 24"><path d="M3 12h7V3H3zm11 9h7v-9h-7zm-11 0h7v-5H3zm11-9h7V3h-7z"/></svg>Dashboard</a>
-      <a class="nav-link" href="#insects"><svg viewBox="0 0 24 24"><path d="M8 6a4 4 0 0 1 8 0M7 20V9.5A3.5 3.5 0 0 1 10.5 6H13.5A3.5 3.5 0 0 1 17 9.5V20M4 13h16"/></svg>Insect pests</a>
-      <a class="nav-link" href="#diseases"><svg viewBox="0 0 24 24"><path d="M12 21s-8-4.4-8-11a4 4 0 0 1 7-2.5A4 4 0 0 1 20 10c0 6.6-8 11-8 11z"/></svg>Diseases</a>
-      <a class="nav-link" href="#weeds"><svg viewBox="0 0 24 24"><path d="M6 18c2-10 10-12 12-12-1 5-3 8-7 10M3 18c6 0 9 3 9 3M12 21c2-4 7-4 9-4"/></svg>Weeds</a>
-      <a class="nav-link" href="#actives"><svg viewBox="0 0 24 24"><path d="M9 3h6M10 3v6L5 18a2 2 0 0 0 1.8 3h10.4a2 2 0 0 0 1.8-3L14 9V3"/></svg>Active ingredients</a>
-      <a class="nav-link" href="#moa"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/></svg>Mode of action</a>
-      <a class="nav-link" href="#resistance"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 4.4-2.8 8.4-7 11-4.2-2.6-7-6.6-7-11V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg>Resistance</a>
-      <a class="nav-link" href="#search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M16 16l5 5"/></svg>Global search</a>
-      <div class="nav-footer">
-        Reference only. Verify labels, local registration and official guidance before use.<br><br>
-        v1.4 · revised cream & olive identity
-      </div>
-    </nav>
-
-    <main class="main">
-      <div class="wrap" id="app"></div>
-    </main>
-  </div>
-
-  <script src="db.js"></script>
-  <script>
-    const D = window.DB || {};
-    const state = { page: 'dashboard', q: '', activeTab: 'Overview', compare: [], compareOpen: false, index: 'A', filters: {} };
-    const S = document.getElementById('app');
-
-    function normalize(str) {
-      return String(str || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
-    }
-    function esc(str) {
-      return String(str ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[ch]));
-    }
-    function uniq(arr) { return [...new Set(arr.filter(Boolean))]; }
-    function by(list, key = 'id') { return Object.fromEntries((list || []).map(x => [x[key], x])); }
-
-    const AI = by(D.actives || []);
-    const PE = by(D.pests || []);
-    const DI = by(D.diseases || []);
-    const CR = by(D.crops || [], 'key');
-    const GID = by(D.groups || []);
-
-    const navLinks = document.querySelectorAll('.nav-link');
-    function setNav() {
-      const page = state.page || 'dashboard';
-      navLinks.forEach(l => {
-        const href = (l.getAttribute('href') || '').replace('#', '');
-        l.classList.toggle('active', href === page);
-      });
-    }
-
-    function renderTopbar(title, query = '') {
-      return `
-      <div class="topbar">
-        <div class="title-cluster">
-          <h1>${esc(title)}</h1>
-        </div>
-        <div class="search-wrap">
-          <input id="global-search" value="${esc(query)}" placeholder="Search pests, diseases, weeds, actives, groups…" autocomplete="off" />
-          <div id="search-suggestions" class="search-suggestions"></div>
-        </div>
-        <button class="btn primary" onclick="window.print()">PDF</button>
-      </div>
-      `;
-    }
-
-    function renderDashboard() {
-      const stats = [
-        ['Insect pests', (D.pests || []).length, 'insects'],
-        ['Diseases', (D.diseases || []).length, 'diseases'],
-        ['Weeds named', (D.weed_named || []).reduce((n, w) => n + (w.names || []).length, 0), 'weeds'],
-        ['Active ingredients', (D.actives || []).length, 'actives'],
-        ['IRAC groups', uniq((D.groups || []).filter(g => g.system === 'IRAC').map(g => g.code)).length, 'moa'],
-        ['FRAC groups', uniq((D.groups || []).filter(g => g.system === 'FRAC').map(g => g.code)).length, 'moa'],
-        ['HRAC groups', uniq((D.groups || []).filter(g => g.system === 'HRAC').map(g => g.code)).length, 'moa'],
-        ['Crop profiles', (D.crops || []).length, 'weeds']
-      ];
-      return `
-        ${renderTopbar('Agri Nexus')}
-        <div class="hero">
-          <h2>Crop Protection Reference Intelligence</h2>
-          <p>Search across active ingredients, pests, diseases, weeds and MoA systems. Press <span class="hero-kbd">Ctrl</span> + <span class="hero-kbd">K</span> for quick focus.</p>
-        </div>
-        <div class="stats-grid">
-          ${stats.map(([label, value, link]) => `
-            <div class="stat-card" onclick="route('${link}')">
-              <strong>${esc(value)}</strong>
-              <span>${esc(label)}</span>
-            </div>
-          `).join('')}
-        </div>
-
-        <div class="section-header"><h2>Reference sections</h2><span class="right">v1.4</span></div>
-        <div class="grid g3">
-          <div class="card section insect" onclick="route('insects')"><h3>Insecticides & insect pests</h3><p>Target-site and pest group references for entomological profiles.</p></div>
-          <div class="card section fungi" onclick="route('diseases')"><h3>Fungicides & diseases</h3><p>Pathogen, signs, symptoms, and FRAC-linked active ingredients.</p></div>
-          <div class="card section weed" onclick="route('weeds')"><h3>Herbicides & weeds</h3><p>Crop-specific references and HRAC-linked control options.</p></div>
-          <div class="card section gold" onclick="route('actives')"><h3>Active ingredients</h3><p>Unified index of chemistries, use scope, MoA and related targets.</p></div>
-          <div class="card section" onclick="route('moa')"><h3>Mode of action</h3><p>IRAC, FRAC and HRAC group pages with resistance concern notes.</p></div>
-          <div class="card section" onclick="route('resistance')"><h3>Resistance management</h3><p>Rotation guidance, risk and group-level decision support.</p></div>
-        </div>
-      `;
-    }
-
-    function buildAtAGlance(obj, type) {
-      const items = [];
-      if (type === 'pest') {
-        items.push(['Common name', obj.common]);
-        items.push(['Scientific name', `<i>${esc(obj.scientific)}</i>`]);
-        items.push(['Order', obj.order]);
-        items.push(['IRAC', (obj.irac_groups || []).map(g => ` <span class="pill insect">${esc(g)}</span>`).join('') || '<span class="na">Not mapped</span>']);
-        items.push(['Hosts', obj.hosts || 'Not recorded']);
-        items.push(['Status', obj.chemical_control_status || 'Not available']);
-      }
-      if (type === 'disease') {
-        items.push(['Disease', obj.name]);
-        items.push(['Pathogen', `<i>${esc(obj.pathogen)}</i>`]);
-        items.push(['Type', obj.pathogen_type]);
-        items.push(['Host crop(s)', (obj.host_crops || []).map(c => CR[c] ? esc(CR[c].name) : esc(c)).join(', ') || 'Not recorded']);
-        items.push(['FRAC links', (obj.frac_actives_ref || []).map(id => AI[id] ? `<span class="pill fungi">${esc(AI[id].name)}</span>` : '').join('') || '<span class="na">Not mapped</span>']);
-        items.push(['Status', obj.chemical_control_status || 'Not available']);
-      }
-      if (type === 'weed') {
-        items.push(['Crop', CR[obj.crop]?.name || obj.crop]);
-        items.push(['Weed type', obj.weed_type || 'Not recorded']);
-        items.push(['Active(s)', (obj.actives_text || '').split(',').map(s => `<span class="pill weed">${esc(s.trim())}</span>`).filter(Boolean).join('') || '<span class="na">Not recorded</span>']);
-        items.push(['HRAC group', (obj.hrac || []).map(g => `<span class="pill weed">HRAC ${esc(g)}</span>`).join('') || '<span class="na">Not available</span>']);
-        items.push(['Timing', obj.application?.timing || 'Not recorded']);
-        items.push(['Registration', obj.registration_status || 'Unknown']);
-      }
-      if (type === 'ai') {
-        items.push(['Name', obj.name]);
-        items.push(['Use', (obj.uses || []).join(', ') || 'Not specified']);
-        items.push(['Group(s)', (obj.groups || []).map(g => `<span class="pill olive">${esc(g.system)} ${esc(g.code)}</span>`).join('') || '<span class="na">Not mapped</span>']);
-        items.push(['MoA', (obj.groups || []).map(g => esc(g.moa || g.name || 'Not recorded')).join('<br>') || 'Not recorded']);
-        items.push(['Scope', obj.usage_scope || 'Not recorded']);
-        items.push(['Status', obj.record_type || 'Not recorded']);
-      }
-      return `
-        <div class="summary-card">
-          ${items.map(([label, value]) => `
-            <div class="summary-item">
-              <span>${esc(label)}</span>
-              <strong>${value}</strong>
-            </div>
-          `).join('')}
-        </div>
-      `;
-    }
-
-    function emptyFieldsTemplate(fields) {
-      const clean = fields.filter(f => !f.value);
-      if (!clean.length) return '';
-      return `
-        <div class="empty-bucket show">
-          <strong>${clean.length} fields unavailable</strong>
-          <div>${clean.map(f => `<div>• ${esc(f.label)}</div>`).join('')}</div>
-          <button class="btn ghost toggle" onclick="this.parentElement.classList.toggle('show'); this.textContent = this.parentElement.classList.contains('show') ? 'Hide missing fields' : 'Show missing fields';">Hide missing fields</button>
-        </div>
-      `;
-    }
-
-    function renderKVPairs(fields, showAll = false) {
-      const filtered = showAll ? fields : fields.filter(f => !!f.value);
-      if (!filtered.length) return '<div class="card"><p>No verified fields available.</p></div>';
-      const html = filtered.map(f => `
-        <div><dt>${esc(f.label)}</dt><dd>${f.value}</dd></div>
-      `).join('');
-      return `<dl class="kv">${html}</dl>`;
-    }
-
-    function renderPests() {
-      const items = (D.pests || []);
-      const page = state.page; if (page !== 'insects') return '';
-      const list = items.filter(item => {
-        const q = normalize(state.q || '');
-        return !q || [item.common, item.scientific, item.order, item.hosts, (item.irac_groups || []).join(' ')].some(v => normalize(v).includes(q));
-      });
-      return `
-        ${renderTopbar('Insecticides & insect pests', state.q || '')}
-        <div class="filter-row">
-          <div class="filter-box"><label>Search</label><input value="${esc(state.q || '')}" oninput="state.q=this.value; route('insects')" placeholder="Pest, host, IRAC…" /></div>
-          <div class="filter-box"><label>Target site</label><select onchange="state.filters.target = this.value; route('insects')"><option value="">All</option>${['Nervous system','Energy production','Growth regulation'].map(v => `<option value="${esc(v)}" ${state.filters.target===v?'selected':''}>${esc(v)}</option>`).join('')}</select></div>
-        </div>
-        <div class="list">
-          ${list.map(item => `
-            <div class="row" onclick="route('insects/${item.id}')">
-              <div><b>${esc(item.common)}</b><small><i>${esc(item.scientific)}</i></small></div>
-              <div>${esc(item.order)}<br><small>${esc(item.arabic || 'Arabic name not recorded')}</small></div>
-              <div>${(item.irac_groups || []).map(g => `<span class="pill insect">${esc(g)}</span>`).join('') || '<span class="na">Not mapped</span>'}</div>
-            </div>
-          `).join('') || '<div class="row"><div>No pests match this filter.</div></div>'}
-        </div>
-      `;
-    }
-
-    function renderPestProfile(id) {
-      const item = PE[id]; if (!item) return renderPests();
-      const fields = [
-        { label: 'Common name', value: item.common },
-        { label: 'Arabic name', value: item.arabic || '' },
-        { label: 'Scientific name', value: `<i>${esc(item.scientific)}</i>` },
-        { label: 'Order', value: item.order },
-        { label: 'Known hosts', value: item.hosts || '' },
-        { label: 'Family', value: '' },
-        { label: 'Definition', value: '' },
-        { label: 'Damage symptoms', value: '' },
-        { label: 'Life cycle', value: '' },
-        { label: 'Conditions', value: '' },
-        { label: 'Monitoring', value: '' },
-        { label: 'Economic threshold', value: '' }
-      ];
-
-      const sectionContent = `
-        <div class="breadcrumb"><a href="#insects">Insects</a> > ${esc(item.common)}</div>
-        ${buildAtAGlance(item, 'pest')}
-        <div class="tabs">
-          ${['Overview','Biology & scouting','Chemistry & MoA','Resistance'].map(tab => `<button class="tab ${state.activeTab === tab ? 'active' : ''}" onclick="state.activeTab='${tab}'; route('insects/${item.id}')">${esc(tab)}</button>`).join('')}
-        </div>
-        <div class="card section insect">
-          ${state.activeTab === 'Overview' ? renderKVPairs(fields, false) : ''}
-          ${state.activeTab === 'Biology & scouting' ? `<div class="card"><p>Biology and scouting fields remain intentionally blank until a verified source is added to the database.</p></div>` : ''}
-          ${state.activeTab === 'Chemistry & MoA' ? `
-            <div class="card"><p><strong>Taxonomic reference only.</strong> These group links are order-level references and should not be treated as species-specific recommendations.</p></div>
-            ${(item.irac_relationships || []).map(r => {
-              const g = GID[r.group_id];
-              return `<div class="card"><h3>${g ? `${esc(g.system)} ${esc(g.code)}` : 'Group'}</h3><p>${g ? esc(g.name) : ''}</p><p>${g ? esc(g.moa) : ''}</p>${r.relationship_type ? `<span class="flag review">${esc(r.relationship_type)}</span>` : ''}${r.evidence_level ? `<span class="flag">${esc(r.evidence_level)}</span>` : ''}${r.confidence ? `<span class="flag">${esc(r.confidence)}</span>` : ''}</div>`;
-            }).join('') || '<div class="card"><p>No chemistries mapped.</p></div>'}
-          ` : ''}
-          ${state.activeTab === 'Resistance' ? `<div class="card"><h3>General IRAC resistance considerations</h3>${(D.resistance?.irac?.practice || []).map(x => `<li>${esc(x)}</li>`).join('')}</div>` : ''}
-        </div>
-        ${emptyFieldsTemplate(fields)}
-      `;
-
-      return `${renderTopbar('Pest profile')}${sectionContent}`;
-    }
-
-    function renderDiseases() {
-      const items = (D.diseases || []);
-      const list = items.filter(item => {
-        const q = normalize(state.q || '');
-        return !q || [item.name, item.pathogen, item.pathogen_type, (item.aliases || []).join(' ')].some(v => normalize(v).includes(q));
-      });
-      return `
-        ${renderTopbar('Fungicides & diseases', state.q || '')}
-        <div class="filter-row">
-          <div class="filter-box"><label>Search</label><input value="${esc(state.q || '')}" oninput="state.q=this.value; route('diseases')" placeholder="Disease, pathogen…" /></div>
-          <div class="filter-box"><label>Effective actives</label><select onchange="state.filters.disease = this.value; route('diseases')"><option value="">All</option>${['Effective / likely effective','Partially effective','Not confirmed'].map(v => `<option value="${esc(v)}" ${state.filters.disease === v ? 'selected' : ''}>${esc(v)}</option>`).join('')}</select></div>
-        </div>
-        <div class="list">
-          ${list.map(item => `
-            <div class="row" onclick="route('diseases/${item.id}')">
-              <div><b>${esc(item.name)}</b><small><i>${esc(item.pathogen)}</i></small></div>
-              <div>${esc(item.pathogen_type)}</div>
-              <div>${(item.frac_actives_ref || []).slice(0, 3).map(id => AI[id] ? `<span class="pill fungi">${esc(AI[id].name)}</span>` : '').join('') || '<span class="na">Not mapped</span>'}</div>
-            </div>
-          `).join('') || '<div class="row"><div>No diseases match this filter.</div></div>'}
-        </div>
-      `;
-    }
-
-    function renderDiseaseProfile(id) {
-      const item = DI[id]; if (!item) return renderDiseases();
-      const fields = [
-        { label: 'Disease name', value: item.name },
-        { label: 'Aliases', value: (item.aliases || []).join(', ') || '' },
-        { label: 'Pathogen', value: `<i>${esc(item.pathogen)}</i>` },
-        { label: 'Pathogen type', value: item.pathogen_type },
-        { label: 'Host crop(s)', value: (item.host_crops || []).map(c => CR[c] ? CR[c].name : c).join(', ') || '' },
-        { label: 'Symptoms', value: (item.symptoms || []).join('<br>') || '' },
-        { label: 'Signs', value: (item.signs || []).join('<br>') || '' },
-        { label: 'Disease cycle', value: '' },
-        { label: 'Infection conditions', value: '' },
-        { label: 'Classification', value: '' },
-        { label: 'Chemical control status', value: item.chemical_control_status || '' }
-      ];
-
-      const content = `
-        <div class="breadcrumb"><a href="#diseases">Diseases</a> > ${esc(item.name)}</div>
-        ${buildAtAGlance(item, 'disease')}
-        <div class="tabs">
-          ${['Overview','Symptoms & signs','Disease cycle','Chemistry & FRAC','Resistance'].map(tab => `<button class="tab ${state.activeTab === tab ? 'active' : ''}" onclick="state.activeTab='${tab}'; route('diseases/${item.id}')">${esc(tab)}</button>`).join('')}
-        </div>
-        <div class="card section fungi">
-          ${state.activeTab === 'Overview' ? renderKVPairs(fields, false) : ''}
-          ${state.activeTab === 'Symptoms & signs' ? `
-            <div class="grid g2">
-              <div class="card"><h3>Symptoms</h3><ul>${(item.symptoms || []).map(x => `<li>${esc(x)}</li>`).join('') || '<li>Not recorded</li>'}</ul></div>
-              <div class="card"><h3>Signs</h3><ul>${(item.signs || []).map(x => `<li>${esc(x)}</li>`).join('') || '<li>Not recorded</li>'}</ul></div>
-            </div>
-          ` : ''}
-          ${state.activeTab === 'Disease cycle' ? `<div class="card"><p>Disease-cycle details remain to be added from verified scientific sources. This field is intentionally left blank until a specialist validates the material.</p></div>` : ''}
-          ${state.activeTab === 'Chemistry & FRAC' ? `
-            <div class="card"><h3>FRAC-linked active ingredients</h3>${(item.frac_relationships || []).map(r => {
-                const a = AI[r.active_id];
-                const groups = (r.group_ids || []).map(id => GID[id] ? `<span class="pill fungi">${esc(GID[id].system)} ${esc(GID[id].code)}</span>` : '').join('');
-                return `<div class="compare-row"><div>${a ? esc(a.name) : 'Unknown active'}<br>${groups || '<span class="na">Not mapped</span>'}</div><div>${r.relationship_type ? `<span class="flag review">${esc(r.relationship_type)}</span>` : ''}${r.evidence_level ? `<span class="flag">${esc(r.evidence_level)}</span>` : ''}</div></div>`;
-            }).join('') || '<p>No active ingredient links recorded.</p>'}</div>
-          ` : ''}
-          ${state.activeTab === 'Resistance' ? `<div class="card"><h3>Resistance notes</h3><p>FRAC rotation management applies: avoid repeated use of the same site of action. If the disease is on a single-site MoA, rotate to another FRAC group and monitor field response.</p></div>` : ''}
-        </div>
-        ${emptyFieldsTemplate(fields)}
-      `;
-      return `${renderTopbar('Disease profile')}${content}`;
-    }
-
-    function renderWeeds() {
-      const crops = (D.crops || []);
-      const cropList = crops.map(c => `
-        <div class="card" onclick="route('weeds/${c.key}')"><h3>${esc(c.name)}</h3><p>${esc(c.group)}</p><small>${(D.weed_options || []).filter(o => o.crop === c.key).length} control options</small></div>
-      `).join('');
-      return `
-        ${renderTopbar('Herbicides & weeds')}
-        <div class="grid g3">${cropList}</div>
-      `;
-    }
-
-    function renderWeedProfile(key) {
-      const crop = CR[key]; if (!crop) return renderWeeds();
-      const options = (D.weed_options || []).filter(o => o.crop === key);
-      const names = (D.weed_named || []).filter(w => w.crop === key).flatMap(w => w.names || []);
-      const fields = [
-        { label: 'Crop', value: crop.name },
-        { label: 'Weed group', value: crop.group },
-        { label: 'Scientific names', value: names.join(', ') || '' },
-        { label: 'Family', value: '' },
-        { label: 'Life cycle', value: '' },
-        { label: 'Local names', value: '' },
-        { label: 'Control option', value: options.map(o => o.trade).join(', ') || '' }
-      ];
-      return `
-        ${renderTopbar(`${crop.name} — weed control`)}
-        <div class="breadcrumb"><a href="#weeds">Weeds</a> > ${esc(crop.name)}</div>
-        ${buildAtAGlance({ crop: key, weed_type: 'Crop specific', actives_text: options.map(o => o.actives_text).join(', '), hrac: uniq(options.flatMap(o => o.hrac || [])), application: { timing: options[0]?.application?.timing || '' }, registration_status: options[0]?.registration_status || 'Unknown' }, 'weed')}
-        ${(names.length ? `<div class="card section weed"><h3>Weeds named in the source guide</h3>${names.map(n => `<span class="pill weed">${esc(n)}</span>`).join('')}</div>` : '')}
-        <div class="list">
-          ${options.map(o => `
-            <div class="row" onclick="route('weeds/${key}')">
-              <div><b>${esc(o.trade)}</b><small>${esc(o.section || 'General control')}</small></div>
-              <div>${(o.actives_text || '').split(',').map(a => `<span class="pill weed">${esc(a.trim())}</span>`).join('') || '<span class="na">Not recorded</span>'}</div>
-              <div>${(o.hrac || []).map(g => `<span class="pill weed">HRAC ${esc(g)}</span>`).join('') || '<span class="na">No HRAC</span>'}</div>
-            </div>
-          `).join('') || '<div class="row"><div>No weed control options available for this crop.</div></div>'}
-        </div>
-        ${emptyFieldsTemplate(fields)}
-      `;
-    }
-
-    function renderActives() {
-      const items = (D.actives || []).sort((a, b) => a.name.localeCompare(b.name));
-      const list = items.filter(item => {
-        const q = normalize(state.q || '');
-        return !q || normalize(item.name).includes(q) || (item.groups || []).some(g => normalize(g.system + ' ' + g.code).includes(q));
-      });
-      return `
-        ${renderTopbar('Active ingredients', state.q || '')}
-        <div class="filter-row">
-          <div class="filter-box"><label>Search</label><input value="${esc(state.q || '')}" oninput="state.q=this.value; route('actives')" placeholder="Active ingredient, group code…" /></div>
-        </div>
-        <div class="alpha-index">
-          ${'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map(ch => `<button class="${state.index === ch ? 'active' : ''}" onclick="state.index='${ch}'; route('actives')">${ch}</button>`).join('')}
-        </div>
-        <div class="list">
-          ${list.filter(item => (item.name || '').toUpperCase().startsWith(state.index || 'A')).map(item => `
-            <div class="row" onclick="route('actives/${item.id}')">
-              <div><b>${esc(item.name)}</b></div>
-              <div>${(item.groups || []).map(g => `<span class="pill olive">${esc(g.system)} ${esc(g.code)}</span>`).join('') || '<span class="na">Not mapped</span>'}</div>
-              <div>${esc(item.uses?.join(', ') || 'Not recorded')}</div>
-            </div>
-          `).join('') || '<div class="row"><div>No actives match this selection.</div></div>'}
-        </div>
-      `;
-    }
-
-    function renderAiProfile(id) {
-      const a = AI[id]; if (!a) return renderActives();
-      const fields = [
-        { label: 'Name', value: a.name },
-        { label: 'Chemical family', value: '' },
-        { label: 'Group(s)', value: (a.groups || []).map(g => `${g.system} ${g.code}`).join(', ') || '' },
-        { label: 'Mode of action', value: (a.groups || []).map(g => g.moa || g.name || '').join('<br>') || '' },
-        { label: 'Usage scope', value: a.usage_scope || '' },
-        { label: 'Uses', value: (a.uses || []).join(', ') || '' },
-        { label: 'Record type', value: a.record_type || '' },
-        { label: 'Registration status', value: a.registration_status || '' }
-      ];
-      return `
-        ${renderTopbar('Active ingredient profile')}
-        <div class="breadcrumb"><a href="#actives">Active ingredients</a> > ${esc(a.name)}</div>
-        ${buildAtAGlance(a, 'ai')}
-        <div class="card section gold">
-          ${renderKVPairs(fields, false)}
-        </div>
-        ${emptyFieldsTemplate(fields)}
-      `;
-    }
-
-    function renderMoA() {
-      const system = state.filters.system || 'IRAC';
-      const groups = (D.groups || []).filter(g => g.system === system);
-      return `
-        ${renderTopbar('Mode of action')}
-        <div class="filter-row">
-          <div class="filter-box"><label>System</label><select onchange="state.filters.system=this.value; route('moa')"><option value="IRAC" ${system === 'IRAC' ? 'selected' : ''}>IRAC</option><option value="FRAC" ${system === 'FRAC' ? 'selected' : ''}>FRAC</option><option value="HRAC" ${system === 'HRAC' ? 'selected' : ''}>HRAC</option></select></div>
-          <div class="filter-box"><label>Search</label><input value="${esc(state.q || '')}" placeholder="Filter by code or wording" oninput="state.q=this.value; route('moa')" /></div>
-        </div>
-        <div class="list">
-          ${groups.filter(g => !state.q || [g.code, g.name, g.moa, g.category].some(v => normalize(v).includes(normalize(state.q)))).map(g => `
-            <div class="row" onclick="route('moa/${g.system}/${encodeURIComponent(g.code)}')">
-              <div><b>${esc(g.system)} ${esc(g.code)}</b><small>${esc(g.name)}</small></div>
-              <div>${esc(g.moa || 'Not recorded')}</div>
-              <div>${esc(g.category || 'Unspecified')}</div>
-            </div>
-          `).join('') || '<div class="row"><div>No group matches this filter.</div></div>'}
-        </div>
-      `;
-    }
-
-    function renderResistance() {
-      return `
-        ${renderTopbar('Resistance management')}
-        <div class="tabs">
-          ${['IRAC','FRAC','HRAC'].map(s => `<button class="tab ${state.filters.system === s || (!state.filters.system && s === 'IRAC') ? 'active' : ''}" onclick="state.filters.system='${s}'; route('resistance')">${s}</button>`).join('')}
-        </div>
-        <div class="card section gold">
-          ${renderResistanceSection(state.filters.system || 'IRAC')}
-        </div>
-      `;
-    }
-
-    function renderResistanceSection(system) {
-      const map = {
-        IRAC: {
-          practice: D.resistance?.irac?.practice || [],
-          why: D.resistance?.irac?.why || []
-        },
-        FRAC: {
-          practice: D.resistance?.frac?.practices || [],
-          why: D.resistance?.frac?.note || 'FRAC rotation matters when using site-specific fungicides.'
-        },
-        HRAC: {
-          practice: D.resistance?.hrac?.practices || [],
-          why: D.resistance?.hrac?.concentration || []
-        }
-      };
-      const data = map[system] || map.IRAC;
-      return `
-        <h3>${system} rotation principles</h3>
-        <ul>${(data.practice || []).map(x => `<li>${esc(x)}</li>`).join('')}</ul>
-        ${system === 'FRAC' ? `<p><strong>Note:</strong> ${esc(data.why)}</p>` : ''}
-        ${system === 'HRAC' ? `${(data.why || []).map(c => `<div class="compare-row"><div>${esc(c.crop)}</div><div>${esc(c.groups)}</div></div>`).join('')}` : ''}
-        ${system !== 'HRAC' && system !== 'FRAC' ? `<h3>Why repeated use is risky</h3><ul>${(data.why || []).map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}
-      `;
-    }
-
-    function renderSearch() {
-      const q = normalize(state.q || '');
-      const hits = [];
-      const add = (kind, item, labelKey, target) => {
-        if (!item) return;
-        const text = [labelKey, item.name || item.common || item.scientific || item.trade || item.code || '', item.pathogen || '', item.moa || '', item.order || '', item.hosts || '', item.actives_text || ''].join(' ');
-        if (!q || normalize(text).includes(q) || fuzzyMatch(q, normalize(text))) hits.push({ kind, item, label: labelKey, href: target });
-      };
-      (D.pests || []).forEach(p => add('Insect pest', p, p.common, `#insects/${p.id}`));
-      (D.diseases || []).forEach(d => add('Disease', d, d.name, `#diseases/${d.id}`));
-      (D.weed_options || []).forEach(o => add('Herbicide option', o, o.trade, `#weeds/${o.crop}`));
-      (D.actives || []).forEach(a => add('Active ingredient', a, a.name, `#actives/${a.id}`));
-      (D.groups || []).forEach(g => add('MoA group', g, `${g.system} ${g.code}`, `#moa/${g.system}/${encodeURIComponent(g.code)}`));
-      const unique = uniq(hits.map(h => `${h.kind}:${h.href}`));
-      const results = unique.map(key => hits.find(h => `${h.kind}:${h.href}` === key)).slice(0, 30);
-
-      return `
-        ${renderTopbar('Global search', state.q || '')}
-        <div class="card section">
-          <h3>Results</h3>
-          <p>${results.length} result(s) for “${esc(state.q || '')}”</p>
-          ${results.length ? `<div class="list">${results.map(h => `
-            <div class="row" onclick="location.hash='${h.href}'">
-              <div><b>${esc(h.label)}</b></div>
-              <div>${esc(h.kind)}</div>
-              <div><small>${esc(h.item?.name || h.item?.common || h.item?.scientific || h.item?.trade || h.item?.code || '')}</small></div>
-            </div>
-          `).join('')}</div>` : '<p>No matches.</p>'}
-        </div>
-      `;
-    }
-
-    function fuzzyMatch(q, text) {
-      if (!q || !text) return false;
-      if (text.includes(q)) return true;
-      const tokens = q.split(' ').filter(Boolean);
-      return tokens.some(token => text.includes(token) || token.length < 3 || text.includes(token.slice(0, 3)));
-    }
-
-    function route(target = null) {
-      const path = target || (location.hash ? location.hash.slice(1) : 'dashboard');
-      const [page, id, arg2, arg3] = path.split('/');
-      state.page = page || 'dashboard';
-      setNav();
-
-      if (path.startsWith('dashboard')) {
-        S.innerHTML = renderDashboard(); bindSearch(); return;
-      }
-      if (path.startsWith('insects')) {
-        if (id) { S.innerHTML = renderPestProfile(id); bindSearch(); return; }
-        S.innerHTML = renderPests(); bindSearch(); return;
-      }
-      if (path.startsWith('diseases')) {
-        if (id) { S.innerHTML = renderDiseaseProfile(id); bindSearch(); return; }
-        S.innerHTML = renderDiseases(); bindSearch(); return;
-      }
-      if (path.startsWith('weeds')) {
-        if (id) { S.innerHTML = renderWeedProfile(id); bindSearch(); return; }
-        S.innerHTML = renderWeeds(); bindSearch(); return;
-      }
-      if (path.startsWith('actives')) {
-        if (id) { S.innerHTML = renderAiProfile(id); bindSearch(); return; }
-        S.innerHTML = renderActives(); bindSearch(); return;
-      }
-      if (path.startsWith('moa')) {
-        S.innerHTML = renderMoA(); bindSearch(); return;
-      }
-      if (path.startsWith('resistance')) {
-        S.innerHTML = renderResistance(); bindSearch(); return;
-      }
-      if (path.startsWith('search')) {
-        S.innerHTML = renderSearch(); bindSearch(); return;
-      }
-      S.innerHTML = renderDashboard(); bindSearch();
-    }
-
-    function bindSearch() {
-      const input = document.getElementById('global-search');
-      if (!input) return;
-      const suggestions = document.getElementById('search-suggestions');
-      const doSearch = (value) => {
-        state.q = value;
-        const q = normalize(value);
-        let hits = [];
-        const add = (kind, label, href, extra = '') => {
-          if (!q || normalize(label + ' ' + extra).includes(q) || fuzzyMatch(q, normalize(label + ' ' + extra))) { hits.push({ kind, label, href }); }
-        };
-        (D.pests || []).forEach(p => add('Insect pest', p.common, `#insects/${p.id}`, `${p.scientific} ${p.order}`));
-        (D.diseases || []).forEach(d => add('Disease', d.name, `#diseases/${d.id}`, `${d.pathogen}`));
-        (D.weed_options || []).forEach(w => add('Herbicide option', w.trade, `#weeds/${w.crop}`, `${w.actives_text}`));
-        (D.actives || []).forEach(a => add('Active ingredient', a.name, `#actives/${a.id}`, `${(a.groups || []).map(g => `${g.system} ${g.code}`).join(' ')}`));
-        (D.groups || []).forEach(g => add('MoA', `${g.system} ${g.code}`, `#moa/${g.system}/${encodeURIComponent(g.code)}`, g.name));
-        hits = hits.slice(0, 8);
-        if (!suggestions) return;
-        suggestions.innerHTML = hits.length ? hits.map(h => `<div class="suggestion-item" onclick="location.hash='${h.href}'"><b>${esc(h.label)}</b><span class="suggestion-kind">${esc(h.kind)}</span></div>`).join('') : '<div class="suggestion-item"><span>No matches</span></div>';
-        suggestions.classList.toggle('show', !!(value && hits.length));
-      };
-      input.oninput = (e) => {
-        doSearch(e.target.value);
-        if (e.target.value.trim()) {
-          const value = e.target.value.trim();
-          if (value.length >= 2) {
-            const q = encodeURIComponent(value);
-            state.q = value;
-          }
-        }
-      };
-      input.onkeydown = (e) => {
-        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
-          e.preventDefault(); input.focus(); input.select();
-        }
-        if (e.key === 'Enter' && input.value.trim()) {
-          location.hash = `search/${encodeURIComponent(input.value.trim())}`;
-        }
-        if (e.key === 'Escape' && suggestions) {
-          suggestions.classList.remove('show');
-        }
-      };
-      input.onblur = () => {
-        setTimeout(() => suggestions && suggestions.classList.remove('show'), 140);
-      };
-      if (state.q) doSearch(state.q);
-    }
-
-    window.addEventListener('hashchange', () => {
-      const hash = location.hash || '#dashboard';
-      const path = hash.slice(1) || 'dashboard';
-      const page = path.split('/')[0] || 'dashboard';
-      state.page = page;
-      route(path);
-    });
-
-    document.addEventListener('keydown', e => {
-      const activeTag = document.activeElement && document.activeElement.tagName;
-      if (((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') || (e.key === '/' && !/INPUT|TEXTAREA|SELECT/.test(activeTag || '')) ) {
-        e.preventDefault();
-        const input = document.getElementById('global-search');
-        if (input) { input.focus(); input.select(); }
-      }
-    });
-
-    route('dashboard');
-  </script>
-</body>
-</html>
+window.DB = DB;
+if (typeof module !== 'undefined') module.exports = { DB };
