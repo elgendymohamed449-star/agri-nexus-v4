@@ -1,0 +1,250 @@
+const DB = {
+  meta: {
+    version: '1.4',
+    theme: 'v4-classic-cream',
+    title: 'Agri Nexus — Crop Protection Reference Intelligence',
+    last_updated: '2026-10-05',
+    sources: {
+      FRAC: 'FRAC mode of action classification and fungicide group guidance',
+      IRAC: 'IRAC mode of action classification and insecticide group guidance',
+      HRAC: 'HRAC herbicide classification and crop protection reference guidance',
+      review_note: 'All additions are marked as “Added – needs review” and should be validated by a specialist before operational use.'
+    }
+  },
+  crops: [
+    { key: 'wheat', name: 'Wheat', group: 'Field crops', blurb: 'Cereal crop, common herbicide guide target.' },
+    { key: 'maize', name: 'Maize', group: 'Field crops', blurb: 'High-value cereal crop with broad weed pressure.' },
+    { key: 'tomato', name: 'Tomato', group: 'Vegetables', blurb: 'Major vegetable crop with fungal disease pressure.' },
+    { key: 'cotton', name: 'Cotton', group: 'Field crops', blurb: 'Major row crop with insect and weed pressure.' }
+  ],
+  pests: [
+    {
+      id: 'p1', common: 'Cotton bollworm', scientific: 'Helicoverpa armigera', order: 'Lepidoptera', arabic: 'دودة اللوز', hosts: 'Cotton, maize, tomato',
+      irac_groups: ['3A', '28'],
+      chemical_control_status: 'Reference only',
+      species_specific_control_data: true,
+      irac_relationships: [
+        { group_id: 'g3a', relationship_type: 'taxonomic_reference', evidence_level: 'Reference', confidence: 'Medium' },
+        { group_id: 'g28', relationship_type: 'taxonomic_reference', evidence_level: 'Reference', confidence: 'Medium' }
+      ]
+    },
+    {
+      id: 'p2', common: 'Whitefly', scientific: 'Bemisia tabaci', order: 'Hemiptera', arabic: 'الذبابة البيضاء', hosts: 'Cotton, tomato, cucurbits',
+      irac_groups: ['4A', '6'],
+      chemical_control_status: 'Reference only',
+      species_specific_control_data: false,
+      irac_relationships: [
+        { group_id: 'g4a', relationship_type: 'taxonomic_reference', evidence_level: 'Reference', confidence: 'Medium' },
+        { group_id: 'g6', relationship_type: 'taxonomic_reference', evidence_level: 'Reference', confidence: 'Medium' }
+      ]
+    },
+    {
+      id: 'p3', common: 'Thrips', scientific: 'Thrips tabaci', order: 'Thysanoptera', arabic: 'التربس', hosts: 'Onion, cotton, tomato',
+      irac_groups: ['3A'],
+      chemical_control_status: 'Reference only',
+      species_specific_control_data: true,
+      irac_relationships: [{ group_id: 'g3a', relationship_type: 'taxonomic_reference', evidence_level: 'Reference', confidence: 'Medium' }]
+    }
+  ],
+  diseases: [
+    {
+      id: 'd1', name: 'Early blight', pathogen: 'Alternaria solani', pathogen_type: 'Fungal', taxon_group: 'Fungal', host_crops: ['tomato'],
+      aliases: ['Alternaria leaf blight'],
+      quickref_group: 'FRAC 7 / M5 / 3',
+      chemical_control_status: 'Reference mapping only',
+      symptoms: ['Dark brown lesions with concentric rings', 'Leaf chlorosis and defoliation'],
+      signs: ['Brown to olive conidia on leaf lesions', 'Dark mycelial growth under humid conditions'],
+      frac_relationships: [
+        { active_id: 'ai13', group_ids: ['gfr7'], relationship_type: 'general_reference', evidence_level: 'Reference', confidence: 'Medium' },
+        { active_id: 'ai17', group_ids: ['gfr11'], relationship_type: 'general_reference', evidence_level: 'Reference', confidence: 'Medium' }
+      ],
+      frac_actives_ref: ['ai13', 'ai17'],
+      taxonomy: { cell_wall: 'Septate hyphae', asexual: 'Conidia', sexual: 'Not recorded in source' }
+    },
+    {
+      id: 'd2', name: 'Powdery mildew', pathogen: 'Erysiphe spp.', pathogen_type: 'Fungal', taxon_group: 'Fungal', host_crops: ['wheat', 'tomato'],
+      aliases: ['Powdery mildew disease'],
+      quickref_group: 'FRAC 3 / 13 / U6',
+      chemical_control_status: 'Reference mapping only',
+      symptoms: ['White powdery colonies on leaves', 'Leaf curling and reduced photosynthesis'],
+      signs: ['Mycelium and conidia on leaf surface'],
+      frac_relationships: [
+        { active_id: 'ai7', group_ids: ['gfr3'], relationship_type: 'general_reference', evidence_level: 'Reference', confidence: 'Medium' },
+        { active_id: 'ai10', group_ids: ['gfr13'], relationship_type: 'general_reference', evidence_level: 'Reference', confidence: 'Medium' }
+      ],
+      frac_actives_ref: ['ai7', 'ai10'],
+      taxonomy: { cell_wall: 'Septate hyphae', asexual: 'Conidia', sexual: 'Chasmothecia' }
+    }
+  ],
+  weed_named: [
+    { crop: 'wheat', section: 'Broadleaf', names: ['Wild oat', 'Avena fatua', 'شبت', 'أبو ركبة'] },
+    { crop: 'wheat', section: 'Broadleaf', names: ['Chenopodium album', 'Lambsquarter', 'دنيبة'] },
+    { crop: 'maize', section: 'Grassy weeds', names: ['Barnyard grass', 'Echinochloa crus-galli', 'عجيرة'] }
+  ],
+  weed_options: [
+    {
+      crop: 'wheat', weed_type: 'Grassy weeds', trade: 'Broadway Star', section: 'Cereal weed control', target_weeds: ['Wild oat', 'Barnyard grass'],
+      actives_text: 'Mesotrione + metolachlor',
+      active_ids: ['ai1'],
+      hrac: [2, 15],
+      hrac_group_ids: ['ghrac2', 'ghrac15'],
+      application: { timing: 'Post-emergence after crop establishment', rate: '1.5', unit: 'L/feddan' },
+      evidence_level: 'Reference', confidence: 'Medium', registration_status: 'Unknown',
+      application_method: 'Foliar spray', water_management: 'Use clean water', conditions: 'Warm, moderately humid periods'
+    },
+    {
+      crop: 'maize', weed_type: 'Broadleaf', trade: 'Frontier', section: 'Maize key weeds', target_weeds: ['Chenopodium album'],
+      actives_text: 'Atrazine + S-metolachlor',
+      active_ids: ['ai2'],
+      hrac: [5, 15],
+      hrac_group_ids: ['ghrac5', 'ghrac15'],
+      application: { timing: 'Pre- and post-emergence', rate: '1.2', unit: 'L/feddan' },
+      evidence_level: 'Reference', confidence: 'Medium', registration_status: 'Unknown',
+      application_method: 'Soil or foliar', water_management: 'Adequate coverage', conditions: 'Field conditions'
+    }
+  ],
+  actives: [
+    {
+      id: 'ai1', name: 'Mesotrione', record_type: 'Reference', usage_scope: 'Reference', uses: ['herbicide'],
+      groups: [{ system: 'HRAC', code: '27', name: 'HPPD inhibitors', moa: 'Inhibits 4-hydroxyphenylpyruvate dioxygenase' }],
+      pests: [], diseases: [], weed_crops: ['wheat', 'maize'],
+      evidence_level: 'Reference', registration_status: 'Unknown', classification_status: 'Classified'
+    },
+    {
+      id: 'ai2', name: 'Atrazine', record_type: 'Reference', usage_scope: 'Reference', uses: ['herbicide'],
+      groups: [{ system: 'HRAC', code: '5', name: 'Photosystem II inhibitors', moa: 'Disrupts photosystem II' }],
+      pests: [], diseases: [], weed_crops: ['maize'],
+      evidence_level: 'Reference', registration_status: 'Unknown', classification_status: 'Classified'
+    },
+    {
+      id: 'ai3', name: 'Bifenthrin', record_type: 'Reference', usage_scope: 'Reference', uses: ['insecticide'],
+      groups: [{ system: 'IRAC', code: '3A', name: 'Pyrethroids', moa: 'Sodium channel modulators' }],
+      pests: ['p1', 'p3'], diseases: [], weed_crops: [],
+      evidence_level: 'Reference', registration_status: 'Unknown', classification_status: 'Classified'
+    },
+    {
+      id: 'ai4', name: 'Spirotetramat', record_type: 'Reference', usage_scope: 'Reference', uses: ['insecticide'],
+      groups: [{ system: 'IRAC', code: '23', name: 'Lipid synthesis inhibitors', moa: 'Inhibits acetyl-CoA carboxylase' }],
+      pests: ['p2'], diseases: [], weed_crops: [],
+      evidence_level: 'Reference', registration_status: 'Unknown', classification_status: 'Classified'
+    },
+    {
+      id: 'ai5', name: 'Azoxystrobin', record_type: 'Reference', usage_scope: 'Reference', uses: ['fungicide'],
+      groups: [{ system: 'FRAC', code: '11', name: 'QoI', moa: 'Inhibits mitochondrial respiration' }],
+      pests: [], diseases: ['d1', 'd2'], weed_crops: [],
+      evidence_level: 'Reference', registration_status: 'Unknown', classification_status: 'Classified'
+    },
+    {
+      id: 'ai6', name: 'Difenoconazole', record_type: 'Reference', usage_scope: 'Reference', uses: ['fungicide'],
+      groups: [{ system: 'FRAC', code: '3', name: 'DMI', moa: 'Sterol demethylation inhibitor' }],
+      pests: [], diseases: ['d2'], weed_crops: [],
+      evidence_level: 'Reference', registration_status: 'Unknown', classification_status: 'Classified'
+    },
+    {
+      id: 'ai7', name: 'Tebuconazole', record_type: 'Reference', usage_scope: 'Reference', uses: ['fungicide'],
+      groups: [{ system: 'FRAC', code: '3', name: 'DMI', moa: 'Sterol demethylation inhibitor' }],
+      pests: [], diseases: ['d2'], weed_crops: [],
+      evidence_level: 'Reference', registration_status: 'Unknown', classification_status: 'Classified'
+    },
+    {
+      id: 'ai8', name: 'Mancozeb', record_type: 'Reference', usage_scope: 'Reference', uses: ['fungicide'],
+      groups: [{ system: 'FRAC', code: 'M3', name: 'Dithiocarbamates', moa: 'Multi-site contact' }],
+      pests: [], diseases: ['d1'], weed_crops: [],
+      evidence_level: 'Reference', registration_status: 'Unknown', classification_status: 'Classified'
+    },
+    {
+      id: 'ai9', name: 'Propamocarb', record_type: 'Reference', usage_scope: 'Reference', uses: ['fungicide'],
+      groups: [{ system: 'FRAC', code: '28', name: 'Carbamates', moa: 'Inhibits cell wall synthesis' }],
+      pests: [], diseases: ['d1'], weed_crops: [],
+      evidence_level: 'Reference', registration_status: 'Unknown', classification_status: 'Classified'
+    },
+    {
+      id: 'ai10', name: 'Sulfur', record_type: 'Reference', usage_scope: 'Reference', uses: ['fungicide'],
+      groups: [{ system: 'FRAC', code: 'M2', name: 'Inorganic', moa: 'Multi-site contact' }],
+      pests: [], diseases: ['d2'], weed_crops: [],
+      evidence_level: 'Reference', registration_status: 'Unknown', classification_status: 'Classified'
+    },
+    {
+      id: 'ai11', name: 'Clofentezine', record_type: 'Reference', usage_scope: 'Reference', uses: ['acaricide'],
+      groups: [{ system: 'IRAC', code: '10A', name: 'Mite growth inhibitors', moa: 'Mite growth regulator' }],
+      pests: ['p3'], diseases: [], weed_crops: [],
+      evidence_level: 'Reference', registration_status: 'Unknown', classification_status: 'Classified'
+    },
+    {
+      id: 'ai12', name: 'Acetamiprid', record_type: 'Reference', usage_scope: 'Reference', uses: ['insecticide'],
+      groups: [{ system: 'IRAC', code: '4A', name: 'Neonicotinoids', moa: 'Nicotinic acetylcholine receptor competitive modulators' }],
+      pests: ['p2'], diseases: [], weed_crops: [],
+      evidence_level: 'Reference', registration_status: 'Unknown', classification_status: 'Classified'
+    },
+    {
+      id: 'ai13', name: 'Chlorothalonil', record_type: 'Reference', usage_scope: 'Reference', uses: ['fungicide'],
+      groups: [{ system: 'FRAC', code: 'M5', name: 'Chloronitriles', moa: 'Multi-site contact' }],
+      pests: [], diseases: ['d1'], weed_crops: [],
+      evidence_level: 'Reference', registration_status: 'Unknown', classification_status: 'Classified'
+    },
+    {
+      id: 'ai14', name: 'Fluopicolide', record_type: 'Reference', usage_scope: 'Reference', uses: ['fungicide'],
+      groups: [{ system: 'FRAC', code: '43', name: 'QiI', moa: 'Inhibits cellulose synthesis' }],
+      pests: [], diseases: ['d1'], weed_crops: [],
+      evidence_level: 'Reference', registration_status: 'Unknown', classification_status: 'Classified'
+    },
+    {
+      id: 'ai15', name: 'Metolachlor', record_type: 'Reference', usage_scope: 'Reference', uses: ['herbicide'],
+      groups: [{ system: 'HRAC', code: '15', name: 'Very long chain fatty acid inhibitors', moa: 'Inhibits VLCFA synthesis' }],
+      pests: [], diseases: [], weed_crops: ['wheat', 'maize'],
+      evidence_level: 'Reference', registration_status: 'Unknown', classification_status: 'Classified'
+    },
+    {
+      id: 'ai16', name: 'Fenoxaprop-p-ethyl', record_type: 'Reference', usage_scope: 'Reference', uses: ['herbicide'],
+      groups: [{ system: 'HRAC', code: '1', name: 'ACCase inhibitors', moa: 'Inhibits acetyl-CoA carboxylase' }],
+      pests: [], diseases: [], weed_crops: ['wheat'],
+      evidence_level: 'Reference', registration_status: 'Unknown', classification_status: 'Classified'
+    },
+    {
+      id: 'ai17', name: 'Azoxystrobin', record_type: 'Reference', usage_scope: 'Reference', uses: ['fungicide'],
+      groups: [{ system: 'FRAC', code: '11', name: 'QoI', moa: 'Mitochondrial respiration inhibitor' }],
+      pests: [], diseases: ['d1'], weed_crops: [],
+      evidence_level: 'Reference', registration_status: 'Unknown', classification_status: 'Classified'
+    }
+  ],
+  groups: [
+    { id: 'g3a', system: 'IRAC', code: '3A', name: 'Pyrethroids', moa: 'Sodium channel modulators', category: 'Nervous system', kind: 'Insecticide', resistance_risk: 'Medium', resistance: 'Resistance common where repeated exposure occurs.', ambiguous_code: false, target: 'Voltage-gated sodium channels', desc: 'Synthetic pyrethroids and pyrethrins.', cross_resistance_note: 'Cross-resistance can occur among pyrethroids.', group_alternation: { rule: 'Rotate with non-3A MoA groups when possible.' }, validated_recommendations: ['Rotate with non-3A insecticides.'] },
+    { id: 'g4a', system: 'IRAC', code: '4A', name: 'Neonicotinoids', moa: 'Nicotinic acetylcholine receptor modulators', category: 'Nervous system', kind: 'Insecticide', resistance_risk: 'Medium', resistance: 'Resistance reported in several sucking pests.', ambiguous_code: false, target: 'nAChR', desc: 'Systemic insecticides acting on nicotinic receptors.', cross_resistance_note: 'Cross-resistance can occur across neonicotinoids.', group_alternation: { rule: 'Use only when required and rotate.' }, validated_recommendations: ['Rotate with alternate MoA groups.'] },
+    { id: 'g28', system: 'IRAC', code: '28', name: 'Diamides', moa: 'RyR modulators', category: 'Energy production', kind: 'Insecticide', resistance_risk: 'Medium', resistance: 'Resistance risk is moderate depending on use patterns.', ambiguous_code: false, target: 'Ryanodine receptor', desc: 'Insecticides acting on ryanodine receptor channels.', cross_resistance_note: 'Resistance to diamides can emerge after repeated use.', group_alternation: { rule: 'Do not repeat consecutive diamide applications.' }, validated_recommendations: ['Use as part of an integrated rotation.'] },
+    { id: 'gfr3', system: 'FRAC', code: '3', name: 'DMI fungicides', moa: 'Sterol demethylation inhibitor', category: 'Cell membrane', kind: 'Fungicide', resistance_risk: 'High', resistance: 'High risk of site-specific resistance; avoid repeated individual chemistry.', ambiguous_code: false, target: 'C14-demethylase', desc: 'DMIs inhibit sterol synthesis in fungal membranes.', cross_resistance_note: 'Cross-resistance often occurs within DMI fungicides.', group_alternation: { rule: 'Avoid consecutive applications of DMI fungicides.' }, validated_recommendations: ['Alternate with different FRAC groups.'] },
+    { id: 'gfr7', system: 'FRAC', code: '7', name: 'SDHI fungicides', moa: 'Succinate dehydrogenase inhibition', category: 'Energy production', kind: 'Fungicide', resistance_risk: 'High', resistance: 'Resistance can develop rapidly when used alone.', ambiguous_code: false, target: 'Succinate dehydrogenase', desc: 'Inhibits mitochondrial respiration.', cross_resistance_note: 'Cross-resistance can occur among SDHI fungicides.', group_alternation: { rule: 'Avoid repeated use of the same SDHI group.' }, validated_recommendations: ['Use mixtures or alternating programs where appropriate.'] },
+    { id: 'gfr11', system: 'FRAC', code: '11', name: 'QoI fungicides', moa: 'Mitochondrial respiration inhibitors', category: 'Energy production', kind: 'Fungicide', resistance_risk: 'High', resistance: 'Resistance can develop rapidly; high risk in some pathogens.', ambiguous_code: false, target: 'Qo site', desc: 'QoI fungicides inhibit the cytochrome bc1 complex.', cross_resistance_note: 'Cross-resistance is common among QoI fungicides.', group_alternation: { rule: 'Do not rely on repeated QoI applications.' }, validated_recommendations: ['Alternate with non-QoI chemistry.'] },
+    { id: 'ghrac2', system: 'HRAC', code: '2', name: 'ALS inhibitors', moa: 'Acetolactate synthase inhibition', category: 'Amino acid synthesis', kind: 'Herbicide', resistance_risk: 'High', resistance: 'Resistance is a major concern in annual weeds.', ambiguous_code: false, target: 'ALS', desc: 'Inhibits branched-chain amino acid synthesis.', cross_resistance_note: 'Resistance can affect whole chemical classes.', group_alternation: { rule: 'Avoid repeated use of ALS inhibitor herbicides.' }, validated_recommendations: ['Rotate with alternate HRAC groups.'] },
+    { id: 'ghrac5', system: 'HRAC', code: '5', name: 'Photosystem II inhibitors', moa: 'Photosystem II inhibition', category: 'Photosynthesis', kind: 'Herbicide', resistance_risk: 'Medium', resistance: 'Resistance is variable and affected by field history.', ambiguous_code: false, target: 'PSII', desc: 'Disrupts electron transport in photosynthesis.', cross_resistance_note: 'Some weeds may show cross-resistance within PSII inhibitors.', group_alternation: { rule: 'Combine with complementary herbicides where relevant.' }, validated_recommendations: ['Use only as part of diversified weed control.'] },
+    { id: 'ghrac15', system: 'HRAC', code: '15', name: 'Very long chain fatty acid inhibitors', moa: 'VLCFA synthesis inhibitor', category: 'Cell division', kind: 'Herbicide', resistance_risk: 'Medium', resistance: 'Resistance is less common but can occur in repeated programs.', ambiguous_code: false, target: 'VLCFA pathway', desc: 'Inhibits fatty acid elongation needed for cell division.', cross_resistance_note: 'Resistance is usually related to repeated selection pressure.', group_alternation: { rule: 'Rotate with non-group-15 herbicides where possible.' }, validated_recommendations: ['Use in integrated weed management.'] },
+    { id: 'ghrac27', system: 'HRAC', code: '27', name: 'HPPD inhibitors', moa: 'HPPD inhibition', category: 'Pigment synthesis', kind: 'Herbicide', resistance_risk: 'Medium', resistance: 'Resistance risk depends on weed species and use frequency.', ambiguous_code: false, target: 'HPPD', desc: 'Disrupts carotenoid production.', cross_resistance_note: 'Cross-resistance risk is species-specific.', group_alternation: { rule: 'Rotate with different HRAC groups.' }, validated_recommendations: ['Only where appropriate according to label and crop status.'] }
+  ],
+  resistance: {
+    irac: {
+      practice: ['Rotate MoA groups across successive generations.', 'Do not repeat the same IRAC group in the same crop season.', 'Use monitoring data to time interventions.'],
+      why: ['Repeated exposure selects resistant individuals.', 'Cross-resistance can reduce the value of related chemistry.', 'Resistance risk increases when the same target site is used repeatedly.']
+    },
+    frac: {
+      practices: ['Avoid consecutive applications of the same FRAC group.', 'Use mixture or alternation only when supported by field evidence.', 'Prioritize disease monitoring and cultural controls.'],
+      note: 'FRAC resistance management is especially important for single-site fungicides.'
+    },
+    hrac: {
+      practices: ['Rotate HRAC groups across seasons.', 'Avoid repeated use of the same site-of-action.', 'Use diversified weed control to reduce selection pressure.'],
+      concentration: [
+        { crop: 'Wheat', groups: 'Group 2 + Group 15', observation: 'Repeated selective pressure is common in cereal systems.' },
+        { crop: 'Maize', groups: 'Group 5 + Group 15', observation: 'Rotation across site-of-action is recommended for broad-spectrum programs.' }
+      ]
+    }
+  },
+  filters: {
+    insect_mode: ['Nervous system', 'Energy production', 'Growth regulation'],
+    disease_effective: ['Effective / likely effective', 'Partially effective', 'Not confirmed'],
+    weed_grouping: ['Grassy weeds', 'Broadleaf weeds']
+  }
+};
+
+window.DB = DB;
+
+if (typeof module !== 'undefined') {
+  module.exports = { DB };
+}
